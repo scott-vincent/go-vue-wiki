@@ -1,5 +1,5 @@
 # Introduction
-This is my first application with a Vue.js front-end and a golang back-end.
+This is my first application with a Vue.js front-end and a Go Lang back-end.
 
 # How To Build The Front-End
 ```
