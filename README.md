@@ -1,4 +1,7 @@
-# Build Front-End
+# Introduction
+This is my first application with a Vue.js front-end and a golang back-end.
+
+# How to Build the Front-End
 ```
 cd frontend
 vue build
@@ -10,7 +13,7 @@ npm install -g @vue/cli @vue/cli-service-global
 ```
 Will build into dist folder so server must be configured to serve root (static files) from frontend/dist
 
-# Build Back-End
+# How to Build the Back-End
 ```
 cd backend
 go build
@@ -19,7 +22,7 @@ go build
 Will build .exe in current folder.
 If you want the .exe in the go/bin folder (already on path), use *go install* instead of *go build*.
 
-# Run Server
+# How to Run the Server
 ```
 cd backend
 backend.exe
