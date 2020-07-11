@@ -25,10 +25,11 @@ cd backend
 backend.exe
 ```
 ### Notes:
-During development you can use the 'refresh server' shortcut instead.
-This will monitor the backend folder for source file changes and will automatically build and run the server after any change.
+During development you can use the 'refresh app' and 'refresh server' shortcuts instead.
+Refresh app will monitor the frontend folder for source file changes and will automatically build the vue app after any change.
+Refresh server will monitor the backend folder for source file changes and will automatically build and run the go server after any change.
     
 To install refresh.exe (written in go) use:
 ```    
-go get github.com/markbates/refresh
+go get github.com/scott-vincent/refresh
 ```
