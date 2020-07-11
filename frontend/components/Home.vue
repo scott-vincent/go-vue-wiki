@@ -1,6 +1,7 @@
 <template>
   <div>
     <h1>Scott's Wiki</h1>
+    {{ msg }}
   </div>
 </template>
 

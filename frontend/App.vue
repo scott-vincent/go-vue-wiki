@@ -1,11 +1,11 @@
 <template>
   <div id="app">
-    <Home />
+    <Home msg="Scott woz ere" />
   </div>
 </template>
 
 <script>
-import GoVueWiki from './components/Home.vue'
+import Home from './components/Home.vue'
 
 export default {
   name: 'App',
