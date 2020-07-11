@@ -1,11 +1,12 @@
 app_root: .
+go_or_vue: vue
 command_env: []
 command_flags: []
 enable_colors: true
 ignored_folders:
 - .git
-- dist
 - node_modules
+- dist
 included_extensions:
 - .vue
 log_name: ""
