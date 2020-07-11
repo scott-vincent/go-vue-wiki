@@ -1,12 +1,13 @@
 package main
 
 import (
+	"fmt"
 	"html/template"
 	"log"
 	"net/http"
 	"strings"
 
-	"github.com/scott-vincent/go-vue-wiki/page"
+	"github.com/scott-vincent/go-vue-wiki/backend/page"
 )
 
 var templates = template.Must(template.ParseFiles(
@@ -104,11 +105,20 @@ func deleteHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func main() {
-	http.HandleFunc("/", homeHandler)
+	// Serve static files for frontend
+	staticFiles := http.FileServer(http.Dir("../frontend/dist"))
+	http.Handle("/", staticFiles)
+
+	// Server endpoints for backend
 	http.HandleFunc("/view/", viewHandler)
 	http.HandleFunc("/edit/", editHandler)
 	http.HandleFunc("/save/", saveHandler)
 	http.HandleFunc("/delete/", deleteHandler)
 
-	log.Fatal(http.ListenAndServe(":8080", nil))
+	// Start the server
+	port := 8080
+	fmt.Println("Server listening on port", port)
+	log.Panic(
+		http.ListenAndServe(fmt.Sprintf(":%d", port), nil),
+	)
 }
