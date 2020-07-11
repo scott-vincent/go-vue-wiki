@@ -1,16 +1,16 @@
 <template>
   <div id="app">
-    <GoVueWiki msg="Welcome to Scott's Vue.js App"/>
+    <Home />
   </div>
 </template>
 
 <script>
-import GoVueWiki from './components/GoVueWiki.vue'
+import GoVueWiki from './components/Home.vue'
 
 export default {
   name: 'App',
   components: {
-    GoVueWiki
+    Home
   }
 }
 </script>

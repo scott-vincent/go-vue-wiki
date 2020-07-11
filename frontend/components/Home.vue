@@ -1,12 +1,12 @@
 <template>
-  <div class="hello">
-    <h1>GoVueWiki.vue says: {{ msg }}</h1>
+  <div>
+    <h1>Scott's Wiki</h1>
   </div>
 </template>
 
 <script>
 export default {
-  name: 'GoVueWiki',
+  name: 'Home',
   props: {
     msg: String
   }

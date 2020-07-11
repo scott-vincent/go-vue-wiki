@@ -1,0 +1,11 @@
+app_root: .
+command_env: []
+command_flags: []
+enable_colors: true
+ignored_folders:
+- .git
+- dist
+- node_modules
+included_extensions:
+- .vue
+log_name: ""
