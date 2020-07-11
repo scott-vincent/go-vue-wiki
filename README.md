@@ -4,7 +4,10 @@ cd frontend
 vue build
 ```
 ### Notes:
-Must have vue cli + service installed: npm install -g @vue/cli @vue/cli-service-global
+Must have vue cli + service installed:
+```
+npm install -g @vue/cli @vue/cli-service-global
+```
 Will build into dist folder so server must be configured to serve root (static files) from frontend/dist
 
 # Build Back-End
@@ -14,7 +17,7 @@ go build
 ```
 ### Notes:
 Will build .exe in current folder.
-If you want the .exe in the go/bin folder (already on path), use 'go install' instead of 'go build'.
+If you want the .exe in the go/bin folder (already on path), use *go install* instead of *go build*.
 
 # Run Server
 ```
