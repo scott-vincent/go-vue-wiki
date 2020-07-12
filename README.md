@@ -28,9 +28,11 @@ cd backend
 backend.exe
 ```
 ### Notes:
-During development you can use the 'refresh app' and 'refresh server' shortcuts instead.
-Refresh app will monitor the frontend folder for source file changes and will automatically build the vue app after any change.
-Refresh server will monitor the backend folder for source file changes and will automatically build and run the go server after any change.
+During development you can use the *refresh app* and *refresh server* shortcuts instead.
+*Refresh app* will monitor the frontend folder for source file changes and will automatically build the Vue app after any change.
+*Refresh server* will monitor the backend folder for source file changes and will automatically build and run the Go server after any change.
+*Refresh npm app* just uses *npm run serve* to serve the Vue app and monitor for changes. Note that this uses port 8081 and the server uses port 8080.
+The npm refresh is much faster than *refresh app* but will only work if the server port is hard-coded into your URLs, otherwise it will try to call the backend on port 8081.
     
 To install refresh.exe (written in go) use:
 ```    

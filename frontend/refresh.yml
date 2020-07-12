@@ -5,8 +5,11 @@ command_flags: []
 enable_colors: true
 ignored_folders:
 - .git
-- node_modules
 - dist
+- node_modules
+- public
+- tests
 included_extensions:
+- .js
 - .vue
 log_name: ""
