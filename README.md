@@ -4,7 +4,7 @@ This is my first application with a Vue.js front-end and a Go Lang back-end.
 # How To Build The Front-End
 ```
 cd frontend
-vue build
+npm run build
 ```
 ### Notes:
 Must have vue cli + service installed:
