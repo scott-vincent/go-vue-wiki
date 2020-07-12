@@ -1,8 +1,8 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
-	"html/template"
 	"log"
 	"net/http"
 	"strings"
@@ -10,68 +10,40 @@ import (
 	"github.com/scott-vincent/go-vue-wiki/backend/page"
 )
 
-var templates = template.Must(template.ParseFiles(
-	"tmpl/home.html",
-	"tmpl/missingPage.html",
-	"tmpl/edit.html",
-	"tmpl/view.html",
-))
-
-func renderTemplate(w http.ResponseWriter, tmpl string, p *page.Page) {
-	err := templates.ExecuteTemplate(w, tmpl+".html", p)
+func handleAllPages(w http.ResponseWriter, r *http.Request) {
+	titles, err := page.GetTitles()
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 	}
+	json.NewEncoder(w).Encode(titles)
 }
 
-func homeHandler(w http.ResponseWriter, r *http.Request) {
-	if r.URL.Path != "/" {
-		renderTemplate(w, "missingPage", nil)
-		return
-	}
-
-	// Find all existing pages
-	err := templates.ExecuteTemplate(w, "home.html", page.GetTitles())
+func handleOnePage(w http.ResponseWriter, r *http.Request) {
+	title := r.URL.Path[len("/pages/"):]
+	page, err := page.Load(title)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 	}
+	json.NewEncoder(w).Encode(page)
 }
 
-func viewHandler(w http.ResponseWriter, r *http.Request) {
-	title := r.URL.Path[len("/view/"):]
-	if title == "" {
-		renderTemplate(w, "missingPage", nil)
-		return
-	}
-
-	p, err := page.Load(title)
-	if err != nil {
-		http.Redirect(w, r, "/edit/"+title, http.StatusFound)
-		return
-	}
-
-	renderTemplate(w, "view", p)
-}
-
-func editHandler(w http.ResponseWriter, r *http.Request) {
+func editHandler(w http.ResponseWriter, r *http.Request) *page.Page {
 	title := r.URL.Path[len("/edit/"):]
 	p, err := page.Load(title)
 	if err != nil {
 		p = &page.Page{Title: title}
 	}
-
-	renderTemplate(w, "edit", p)
+	return p
 }
 
-func saveHandler(w http.ResponseWriter, r *http.Request) {
+func saveHandler(w http.ResponseWriter, r *http.Request) *page.Page {
 	oldTitle := r.URL.Path[len("/save/"):]
 	newTitle := strings.TrimSpace(r.FormValue("title"))
 	body := r.FormValue("body")
 
 	if newTitle == "" {
 		p := &page.Page{Body: []byte(body), Error: "Page must have a title"}
-		renderTemplate(w, "edit", p)
-		return
+		return p
 	}
 
 	// If page title has changed, make sure it is valid
@@ -80,8 +52,7 @@ func saveHandler(w http.ResponseWriter, r *http.Request) {
 		if err != nil {
 			// Redisplay the edit page and show the error
 			p := &page.Page{Title: oldTitle, Body: []byte(body), Error: err.Error()}
-			renderTemplate(w, "edit", p)
-			return
+			return p
 		}
 
 		// Delete the old page
@@ -92,16 +63,15 @@ func saveHandler(w http.ResponseWriter, r *http.Request) {
 	err := p.Save()
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
+		return p
 	}
 
-	http.Redirect(w, r, "/view/"+newTitle, http.StatusFound)
+	return nil
 }
 
 func deleteHandler(w http.ResponseWriter, r *http.Request) {
 	title := r.URL.Path[len("/delete/"):]
 	page.Delete(title)
-	http.Redirect(w, r, "/", http.StatusFound)
 }
 
 func main() {
@@ -110,10 +80,8 @@ func main() {
 	http.Handle("/", staticFiles)
 
 	// Server endpoints for backend
-	http.HandleFunc("/view/", viewHandler)
-	http.HandleFunc("/edit/", editHandler)
-	http.HandleFunc("/save/", saveHandler)
-	http.HandleFunc("/delete/", deleteHandler)
+	http.HandleFunc("/pages", handleAllPages)
+	http.HandleFunc("/pages/", handleOnePage)
 
 	// Start the server
 	port := 8080

@@ -37,10 +37,10 @@ func Load(title string) (*Page, error) {
 }
 
 // GetTitles reads all filenames in the page folder
-func GetTitles() []string {
+func GetTitles() ([]string, error) {
 	files, err := ioutil.ReadDir(pageFolder)
 	if err != nil {
-		panic(err)
+		return nil, err
 	}
 
 	var titles []string
@@ -52,7 +52,7 @@ func GetTitles() []string {
 	}
 
 	sort.Strings(titles)
-	return titles
+	return titles, nil
 }
 
 // Delete the page with the specified title

@@ -10,12 +10,12 @@
     </div>
     <div v-if="pages">
       <div id="title">
-        <div class="left">Pages [</div>
+        <div class="left">Contents [</div>
         <div id="add-page" class="left button clickable" v-on:click="addPage">+</div>
         ]
       </div>
-      <div v-for="page in pages" :key="page.title">
-        <div id="view-page" class="wiki-link clickable" v-on:click="viewPage(page.title)">{{ page.title }}</div>
+      <div v-for="page in pages" :key="page">
+        <div id="view-page" class="wiki-link clickable" v-on:click="viewPage(page)">{{ page }}</div>
       </div>
     </div>
   </div>
@@ -40,16 +40,18 @@ export default {
       this.loading = true
       this.error = null
       this.pages = null
-      this.$http.get('/view')
-        .then(response => { this.pages = response })
+      this.$http.get('/pages')
+        .then(response => {
+          this.pages = response.data
+        })
         .catch(error => { this.error = error })
         .finally(() => { this.loading = false })
     },
     addPage (event) {
       alert('Add page')
     },
-    viewPage (pageNum) {
-      alert('View page ' + pageNum)
+    viewPage (title) {
+      alert('View page ' + title)
     }
   }
 }
