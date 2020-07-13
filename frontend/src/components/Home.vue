@@ -40,7 +40,7 @@ export default {
       this.loading = true
       this.error = null
       this.pages = null
-      this.$http.get('/pages')
+      this.$http.get(this.$getConst('Url') + '/pages')
         .then(response => {
           this.pages = response.data
         })

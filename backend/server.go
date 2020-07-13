@@ -10,7 +10,12 @@ import (
 	"github.com/scott-vincent/go-vue-wiki/backend/page"
 )
 
+func allowCorsOnLocalhost(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Access-Control-Allow-Origin", "http://localhost:8081")
+}
+
 func handleAllPages(w http.ResponseWriter, r *http.Request) {
+	allowCorsOnLocalhost(w, r)
 	titles, err := page.GetTitles()
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -19,6 +24,7 @@ func handleAllPages(w http.ResponseWriter, r *http.Request) {
 }
 
 func handleOnePage(w http.ResponseWriter, r *http.Request) {
+	allowCorsOnLocalhost(w, r)
 	title := r.URL.Path[len("/pages/"):]
 	page, err := page.Load(title)
 	if err != nil {
@@ -28,6 +34,7 @@ func handleOnePage(w http.ResponseWriter, r *http.Request) {
 }
 
 func editHandler(w http.ResponseWriter, r *http.Request) *page.Page {
+	allowCorsOnLocalhost(w, r)
 	title := r.URL.Path[len("/edit/"):]
 	p, err := page.Load(title)
 	if err != nil {
@@ -37,6 +44,7 @@ func editHandler(w http.ResponseWriter, r *http.Request) *page.Page {
 }
 
 func saveHandler(w http.ResponseWriter, r *http.Request) *page.Page {
+	allowCorsOnLocalhost(w, r)
 	oldTitle := r.URL.Path[len("/save/"):]
 	newTitle := strings.TrimSpace(r.FormValue("title"))
 	body := r.FormValue("body")
@@ -70,6 +78,7 @@ func saveHandler(w http.ResponseWriter, r *http.Request) *page.Page {
 }
 
 func deleteHandler(w http.ResponseWriter, r *http.Request) {
+	allowCorsOnLocalhost(w, r)
 	title := r.URL.Path[len("/delete/"):]
 	page.Delete(title)
 }

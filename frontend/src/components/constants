@@ -1,0 +1,16 @@
+const Constants = {
+    Url: ""
+};
+Constants.install = function (Vue) {
+    Vue.prototype.$getConst = (key) => {
+        if (key == 'Url') {
+            // Want Url to be blank in production (everything served from server)
+            // or force to server port in development (Vue running under npm).
+            return process.env.NODE_ENV == 'development' ? "http://localhost:8080" : ""
+        }
+        else {
+            return Constants[key];
+        }
+    }
+};
+export default Constants;

@@ -7,12 +7,14 @@ import 'bootstrap/dist/css/bootstrap.css'
 import 'bootstrap-vue/dist/bootstrap-vue.css'
 
 // My components
+import constants from '../components/constants'
 import Home from '../components/Home.vue'
 import View from '../components/View.vue'
 
 // Use plugins
 Vue.use(VueRouter)
 Vue.use(BootstrapVue)
+Vue.use(constants)
 Vue.prototype.$http = axios
 
 const routes = [
