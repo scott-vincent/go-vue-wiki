@@ -16,16 +16,16 @@ Will build into dist folder so server must be configured to serve root (static f
 # How To Build The Back-End
 ```
 cd backend
-go build
+go build -o go-vue-wiki.exe
 ```
 ### Notes:
-Will build .exe in current folder.
+Will build the .exe in the current folder.
 If you want the .exe in the go/bin folder (already on path), use *go install* instead of *go build*.
 
 # How To Run The Server
 ```
 cd backend
-backend.exe
+go-vue-wiki.exe
 ```
 ### Notes:
 The app is normally served from the server but during development you can use the *refresh app* and *refresh server* shortcuts instead to instantly apply updates when you make source code changes.

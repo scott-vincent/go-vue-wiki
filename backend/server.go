@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"os"
 	"strings"
 
 	"github.com/scott-vincent/go-vue-wiki/backend/page"
@@ -83,9 +84,27 @@ func deleteHandler(w http.ResponseWriter, r *http.Request) {
 	page.Delete(title)
 }
 
+func getAppDir() string {
+	prodDir := "dist"
+	devDir := "../frontend/dist"
+
+	stat, err := os.Stat(prodDir)
+	if err == nil && stat.IsDir() {
+		return prodDir
+	}
+
+	stat, err = os.Stat(devDir)
+	if err == nil && stat.IsDir() {
+		return devDir
+	}
+
+	log.Panic("App not found looking for folder ", prodDir, " or ", devDir)
+	return ""
+}
+
 func main() {
 	// Serve static files for frontend
-	staticFiles := http.FileServer(http.Dir("../frontend/dist"))
+	staticFiles := http.FileServer(http.Dir(getAppDir()))
 	http.Handle("/", staticFiles)
 
 	// Server endpoints for backend
