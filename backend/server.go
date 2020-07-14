@@ -8,34 +8,55 @@ import (
 	"os"
 	"strings"
 
+	"github.com/gorilla/handlers"
+	"github.com/gorilla/mux"
 	"github.com/scott-vincent/go-vue-wiki/backend/page"
 )
 
-func allowCorsOnLocalhost(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Access-Control-Allow-Origin", "http://localhost:8081")
-}
-
-func handleAllPages(w http.ResponseWriter, r *http.Request) {
-	allowCorsOnLocalhost(w, r)
+///
+// GET /pages
+///
+func getPages(w http.ResponseWriter, r *http.Request) {
 	titles, err := page.GetTitles()
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
 	}
+
 	json.NewEncoder(w).Encode(titles)
 }
 
-func handleOnePage(w http.ResponseWriter, r *http.Request) {
-	allowCorsOnLocalhost(w, r)
-	title := r.URL.Path[len("/pages/"):]
+///
+// GET /pages/:title
+///
+func getPage(w http.ResponseWriter, r *http.Request) {
+	pathParams := mux.Vars(r)
+	title := pathParams["title"]
+
 	page, err := page.Load(title)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 	}
+
 	json.NewEncoder(w).Encode(page)
 }
 
+///
+// DELETE /pages/:title
+///
+func deletePage(w http.ResponseWriter, r *http.Request) {
+	pathParams := mux.Vars(r)
+	title := pathParams["title"]
+
+	err := page.Delete(title)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+	}
+
+	json.NewEncoder(w).Encode("Deleted")
+}
+
 func editHandler(w http.ResponseWriter, r *http.Request) *page.Page {
-	allowCorsOnLocalhost(w, r)
 	title := r.URL.Path[len("/edit/"):]
 	p, err := page.Load(title)
 	if err != nil {
@@ -45,7 +66,6 @@ func editHandler(w http.ResponseWriter, r *http.Request) *page.Page {
 }
 
 func saveHandler(w http.ResponseWriter, r *http.Request) *page.Page {
-	allowCorsOnLocalhost(w, r)
 	oldTitle := r.URL.Path[len("/save/"):]
 	newTitle := strings.TrimSpace(r.FormValue("title"))
 	body := r.FormValue("body")
@@ -78,12 +98,6 @@ func saveHandler(w http.ResponseWriter, r *http.Request) *page.Page {
 	return nil
 }
 
-func deleteHandler(w http.ResponseWriter, r *http.Request) {
-	allowCorsOnLocalhost(w, r)
-	title := r.URL.Path[len("/delete/"):]
-	page.Delete(title)
-}
-
 func getAppDir() string {
 	prodDir := "dist"
 	devDir := "../frontend/dist"
@@ -98,23 +112,32 @@ func getAppDir() string {
 		return devDir
 	}
 
-	log.Panic("App not found looking for folder ", prodDir, " or ", devDir)
+	log.Fatal("App not found looking for folder ", prodDir, " or ", devDir)
 	return ""
 }
 
 func main() {
+	// Use Gorilla Mux
+	router := mux.NewRouter()
+
+	// Allow CORS on localhost
+	cors := handlers.CORS(
+		handlers.AllowedHeaders([]string{"content-type"}),
+		handlers.AllowedOrigins([]string{"http://localhost:8081"}),
+		handlers.AllowCredentials(),
+	)
+	router.Use(cors)
+
 	// Serve static files for frontend
-	staticFiles := http.FileServer(http.Dir(getAppDir()))
-	http.Handle("/", staticFiles)
+	router.Handle("/", http.FileServer(http.Dir(getAppDir())))
 
 	// Server endpoints for backend
-	http.HandleFunc("/pages", handleAllPages)
-	http.HandleFunc("/pages/", handleOnePage)
+	router.Methods("GET").PathPrefix("/pages").HandlerFunc(getPages)
+	router.Methods("GET").PathPrefix("/pages/{title}").HandlerFunc(getPage)
+	router.Methods("DELETE").PathPrefix("/pages/{title}").HandlerFunc(deletePage)
 
 	// Start the server
 	port := 8080
 	fmt.Println("Server listening on port", port)
-	log.Panic(
-		http.ListenAndServe(fmt.Sprintf(":%d", port), nil),
-	)
+	log.Fatal(http.ListenAndServe(fmt.Sprintf(":%d", port), router))
 }

@@ -8,10 +8,10 @@ import 'bootstrap-vue/dist/bootstrap-vue.css'
 
 // My components
 import constants from '../components/constants'
-import Home from '../components/Home.vue'
+import Contents from '../components/Contents.vue'
 
 // My lazy loaded components (to improve load times)
-const View = () => import('../components/View.vue')
+const ViewPage = () => import('../components/ViewPage.vue')
 
 // Use plugins
 Vue.use(VueRouter)
@@ -23,12 +23,12 @@ const routes = [
   {
     path: '/',
     name: 'Home',
-    component: Home
+    component: Contents
   },
   {
-    path: '/view',
+    path: '/view/:title',
     name: 'View',
-    component: View
+    component: ViewPage
   }
 ]
 

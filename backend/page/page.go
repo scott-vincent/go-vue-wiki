@@ -56,8 +56,8 @@ func GetTitles() ([]string, error) {
 }
 
 // Delete the page with the specified title
-func Delete(title string) {
-	os.Remove(getFilename(title))
+func Delete(title string) error {
+	return os.Remove(getFilename(title))
 }
 
 // ValidateNewPage returns error if the filename is not valid or already exists
