@@ -12,6 +12,7 @@ import Contents from '../components/Contents.vue'
 
 // My lazy loaded components (to improve load times)
 const ViewPage = () => import('../components/ViewPage.vue')
+const EditPage = () => import('../components/EditPage.vue')
 
 // Use plugins
 Vue.use(VueRouter)
@@ -29,6 +30,11 @@ const routes = [
     path: '/view/:title',
     name: 'View',
     component: ViewPage
+  },
+  {
+    path: '/edit/:title',
+    name: 'Edit',
+    component: EditPage
   }
 ]
 

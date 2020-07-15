@@ -5,14 +5,14 @@
       <div class="left button" v-on:click="$router.push('/')">home</div>
       <div class="left">]</div>
       <div class="left button-gap">[</div>
-      <div class="left button" v-on:click="$router.push('/edit/' + $route.params.title)">edit</div>
+      <div class="left button" v-on:click="savePage()">save</div>
       <div class="left">]</div>
       <div class="left button-gap">[</div>
-      <div class="left button" v-on:click="deletePage()">delete</div>
+      <div class="left button" v-on:click="$router.push('/view/' + $route.params.title)">cancel</div>
       ]
     </div>
     <div id="title">
-      {{ $route.params.title }}
+      {{ title }}
     </div>
     <div v-if="loading">
       <b-spinner small variant="secondary"></b-spinner>
@@ -28,17 +28,19 @@
 
 <script>
 export default {
-  name: 'ViewPage',
+  name: 'EditPage',
   data () {
     return {
       loading: false,
       error: null,
-      page: null
+      page: null,
+      title: null
     }
   },
   created () {
     // Fetch the data when the view is created
     this.fetchData()
+    this.title = this.$route.params.title
   },
   methods: {
     fetchData () {
@@ -50,14 +52,14 @@ export default {
         .catch(error => { this.error = error })
         .finally(() => { this.loading = false })
     },
-    deletePage () {
+    savePage () {
       this.loading = true
       this.error = null
       this.savedPage = this.page
       this.page = null
-      this.$http.delete(this.$getConst('Url') + '/pages/' + this.$route.params.title)
+      this.$http.post(this.$getConst('Url') + '/pages/' + this.$route.params.title)
         .then(response => {
-          this.$router.push('/')
+          this.$router.push('/view/' + this.title)
         })
         .catch(error => {
           this.error = error

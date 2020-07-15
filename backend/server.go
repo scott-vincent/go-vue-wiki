@@ -36,9 +36,22 @@ func getPage(w http.ResponseWriter, r *http.Request) {
 	page, err := page.Load(title)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
 	}
 
 	json.NewEncoder(w).Encode(page)
+}
+
+///
+// POST /pages/:title
+///
+func savePage(w http.ResponseWriter, r *http.Request) {
+	pathParams := mux.Vars(r)
+	title := pathParams["title"]
+
+	_ = title
+
+	json.NewEncoder(w).Encode("OK")
 }
 
 ///
@@ -51,9 +64,10 @@ func deletePage(w http.ResponseWriter, r *http.Request) {
 	err := page.Delete(title)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
 	}
 
-	json.NewEncoder(w).Encode("Deleted")
+	json.NewEncoder(w).Encode("OK")
 }
 
 func editHandler(w http.ResponseWriter, r *http.Request) *page.Page {
@@ -71,7 +85,7 @@ func saveHandler(w http.ResponseWriter, r *http.Request) *page.Page {
 	body := r.FormValue("body")
 
 	if newTitle == "" {
-		p := &page.Page{Body: []byte(body), Error: "Page must have a title"}
+		p := &page.Page{Body: body, Error: "Page must have a title"}
 		return p
 	}
 
@@ -80,7 +94,7 @@ func saveHandler(w http.ResponseWriter, r *http.Request) *page.Page {
 		err := page.ValidateNewPage(newTitle)
 		if err != nil {
 			// Redisplay the edit page and show the error
-			p := &page.Page{Title: oldTitle, Body: []byte(body), Error: err.Error()}
+			p := &page.Page{Title: oldTitle, Body: body, Error: err.Error()}
 			return p
 		}
 
@@ -88,7 +102,7 @@ func saveHandler(w http.ResponseWriter, r *http.Request) *page.Page {
 		page.Delete(oldTitle)
 	}
 
-	p := &page.Page{Title: newTitle, Body: []byte(body)}
+	p := &page.Page{Title: newTitle, Body: body}
 	err := p.Save()
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -122,18 +136,21 @@ func main() {
 
 	// Allow CORS on localhost
 	cors := handlers.CORS(
-		handlers.AllowedHeaders([]string{"content-type"}),
 		handlers.AllowedOrigins([]string{"http://localhost:8081"}),
+		handlers.AllowedHeaders([]string{"Accept", "Accept-Language", "Content-Type", "Content-Language", "Origin"}),
+		handlers.AllowedMethods([]string{"GET", "POST", "PUT", "DELETE", "OPTIONS"}),
 		handlers.AllowCredentials(),
 	)
 	router.Use(cors)
+	router.Methods("OPTIONS").PathPrefix("/") // CORS doesn't work without this!
 
 	// Serve static files for frontend
 	router.Handle("/", http.FileServer(http.Dir(getAppDir())))
 
 	// Server endpoints for backend
-	router.Methods("GET").PathPrefix("/pages").HandlerFunc(getPages)
 	router.Methods("GET").PathPrefix("/pages/{title}").HandlerFunc(getPage)
+	router.Methods("GET").PathPrefix("/pages").HandlerFunc(getPages)
+	router.Methods("POST").PathPrefix("/pages/{title}").HandlerFunc(savePage)
 	router.Methods("DELETE").PathPrefix("/pages/{title}").HandlerFunc(deletePage)
 
 	// Start the server

@@ -13,7 +13,7 @@ const pageFolder = "data"
 // Page stores a web page
 type Page struct {
 	Title string
-	Body  []byte
+	Body  string
 	Error string
 }
 
@@ -24,7 +24,7 @@ func getFilename(title string) string {
 // Save page
 func (p *Page) Save() error {
 	filename := getFilename(p.Title)
-	return ioutil.WriteFile(filename, p.Body, 0600)
+	return ioutil.WriteFile(filename, []byte(p.Body), 0600)
 }
 
 // Load page
@@ -33,7 +33,7 @@ func Load(title string) (*Page, error) {
 	if err != nil {
 		return nil, err
 	}
-	return &Page{Title: title, Body: body}, nil
+	return &Page{Title: title, Body: string(body)}, nil
 }
 
 // GetTitles reads all filenames in the page folder
