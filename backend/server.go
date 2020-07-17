@@ -6,25 +6,11 @@ import (
 	"log"
 	"net/http"
 	"os"
-	"strings"
 
 	"github.com/gorilla/handlers"
 	"github.com/gorilla/mux"
 	"github.com/scott-vincent/go-vue-wiki/backend/page"
 )
-
-///
-// GET /pages
-///
-func getPages(w http.ResponseWriter, r *http.Request) {
-	titles, err := page.GetTitles()
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
-
-	json.NewEncoder(w).Encode(titles)
-}
 
 ///
 // GET /pages/:title
@@ -33,13 +19,13 @@ func getPage(w http.ResponseWriter, r *http.Request) {
 	pathParams := mux.Vars(r)
 	title := pathParams["title"]
 
-	page, err := page.Load(title)
+	p, err := page.Load(title)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 
-	json.NewEncoder(w).Encode(page)
+	json.NewEncoder(w).Encode(p)
 }
 
 ///
@@ -47,9 +33,34 @@ func getPage(w http.ResponseWriter, r *http.Request) {
 ///
 func savePage(w http.ResponseWriter, r *http.Request) {
 	pathParams := mux.Vars(r)
-	title := pathParams["title"]
+	oldTitle := pathParams["title"]
 
-	_ = title
+	var p page.Page
+	err := json.NewDecoder(r.Body).Decode(&p)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	// If title changed make sure new page does not already exist
+	if (p.Title != oldTitle) {
+		err := page.ValidateNewPage(p.Title)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusBadRequest)
+			return
+		}
+	}
+
+	err = p.Save()
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	// If title changed delete old page
+	if (oldTitle != "*" && oldTitle != p.Title) {
+		page.Delete(oldTitle)
+	}
 
 	json.NewEncoder(w).Encode("OK")
 }
@@ -70,46 +81,17 @@ func deletePage(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode("OK")
 }
 
-func editHandler(w http.ResponseWriter, r *http.Request) *page.Page {
-	title := r.URL.Path[len("/edit/"):]
-	p, err := page.Load(title)
-	if err != nil {
-		p = &page.Page{Title: title}
-	}
-	return p
-}
-
-func saveHandler(w http.ResponseWriter, r *http.Request) *page.Page {
-	oldTitle := r.URL.Path[len("/save/"):]
-	newTitle := strings.TrimSpace(r.FormValue("title"))
-	body := r.FormValue("body")
-
-	if newTitle == "" {
-		p := &page.Page{Body: body, Error: "Page must have a title"}
-		return p
-	}
-
-	// If page title has changed, make sure it is valid
-	if newTitle != oldTitle {
-		err := page.ValidateNewPage(newTitle)
-		if err != nil {
-			// Redisplay the edit page and show the error
-			p := &page.Page{Title: oldTitle, Body: body, Error: err.Error()}
-			return p
-		}
-
-		// Delete the old page
-		page.Delete(oldTitle)
-	}
-
-	p := &page.Page{Title: newTitle, Body: body}
-	err := p.Save()
+///
+// GET /pages
+///
+func getPages(w http.ResponseWriter, r *http.Request) {
+	titles, err := page.GetTitles()
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return p
+		return
 	}
 
-	return nil
+	json.NewEncoder(w).Encode(titles)
 }
 
 func getAppDir() string {
@@ -149,9 +131,9 @@ func main() {
 
 	// Server endpoints for backend
 	router.Methods("GET").PathPrefix("/pages/{title}").HandlerFunc(getPage)
-	router.Methods("GET").PathPrefix("/pages").HandlerFunc(getPages)
 	router.Methods("POST").PathPrefix("/pages/{title}").HandlerFunc(savePage)
 	router.Methods("DELETE").PathPrefix("/pages/{title}").HandlerFunc(deletePage)
+	router.Methods("GET").PathPrefix("/pages").HandlerFunc(getPages)
 
 	// Start the server
 	port := 8080
