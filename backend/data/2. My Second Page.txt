@@ -1,1 +1,6 @@
-Placeholder
+This is a page with lots of lines.
+
+Another line after a blank line.
+And another one.
+
+I can have as many lines as I want ;-)
