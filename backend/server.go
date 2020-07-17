@@ -6,6 +6,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"path/filepath"
 
 	"github.com/gorilla/handlers"
 	"github.com/gorilla/mux"
@@ -43,7 +44,7 @@ func savePage(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// If title changed make sure new page does not already exist
-	if (p.Title != oldTitle) {
+	if p.Title != oldTitle {
 		err := page.ValidateNewPage(p.Title)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusBadRequest)
@@ -58,7 +59,7 @@ func savePage(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// If title changed delete old page
-	if (oldTitle != "*" && oldTitle != p.Title) {
+	if oldTitle != "*" && oldTitle != p.Title {
 		page.Delete(oldTitle)
 	}
 
@@ -124,19 +125,22 @@ func main() {
 		handlers.AllowCredentials(),
 	)
 	router.Use(cors)
-	router.Methods("OPTIONS").PathPrefix("/") // CORS doesn't work without this!
+	router.Methods("OPTIONS").PathPrefix("/wiki-server") // CORS doesn't work without this!
 
-	// Serve static files for frontend
-	router.Handle("/", http.FileServer(http.Dir(getAppDir())))
+	// Backend - Server endpoints
+	router.Methods("GET").PathPrefix("/wiki-server/pages/{title}").HandlerFunc(getPage)
+	router.Methods("POST").PathPrefix("/wiki-server/pages/{title}").HandlerFunc(savePage)
+	router.Methods("DELETE").PathPrefix("/wiki-server/pages/{title}").HandlerFunc(deletePage)
+	router.Methods("GET").PathPrefix("/wiki-server/pages").HandlerFunc(getPages)
 
-	// Server endpoints for backend
-	router.Methods("GET").PathPrefix("/pages/{title}").HandlerFunc(getPage)
-	router.Methods("POST").PathPrefix("/pages/{title}").HandlerFunc(savePage)
-	router.Methods("DELETE").PathPrefix("/pages/{title}").HandlerFunc(deletePage)
-	router.Methods("GET").PathPrefix("/pages").HandlerFunc(getPages)
+	// Frontend - Serve static files
+	appDir := getAppDir()
+	router.Methods("GET").PathPrefix("/").Handler(http.FileServer(http.Dir(appDir)))
 
 	// Start the server
 	port := 8080
 	fmt.Println("Server listening on port", port)
+	absAppDir, _ := filepath.Abs(appDir)
+	fmt.Println("Serving static files from", absAppDir)
 	log.Fatal(http.ListenAndServe(fmt.Sprintf(":%d", port), router))
 }
