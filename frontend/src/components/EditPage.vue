@@ -23,9 +23,9 @@
         ]
       </div>
       <div id="title">Title</div>
-      <input ref="titleInput" v-model.trim="pageTitle">
+      <input ref="titleInput" class="input" v-model.trim="pageTitle" />
       <div id="title">Content</div>
-      <input ref="bodyInput" v-model.trim="pageBody">
+      <textarea ref="bodyInput" class="input input-body" v-model.trim="pageBody" />
     </div>
   </div>
 </template>
@@ -119,5 +119,12 @@ export default {
 .disabled-button:hover {
   text-decoration: none;
   cursor: default;
+}
+.input {
+  width: 90%;
+  max-width: 800px;
+}
+.input-body {
+  height: 400px;
 }
 </style>

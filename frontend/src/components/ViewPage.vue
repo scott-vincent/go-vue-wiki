@@ -78,5 +78,7 @@ export default {
 <style scoped>
 .page-content {
   margin-top: 10px;
+  white-space: pre-wrap;
+  width: 90%;
 }
 </style>
