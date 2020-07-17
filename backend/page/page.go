@@ -14,25 +14,38 @@ const pageFolder = "data"
 type Page struct {
 	Title string
 	Body  string
-	Error string
 }
 
-func getFilename(title string) string {
-	return pageFolder + "/" + title + ".txt"
+func getFilename(title string) (string, error) {
+	if strings.ContainsAny(title, "#?/\\*\"") {
+		return "", fmt.Errorf("Page name not allowed - Must not contain special characters")
+	}
+
+	return pageFolder + "/" + title + ".txt", nil
 }
 
 // Save page
 func (p *Page) Save() error {
-	filename := getFilename(p.Title)
+	filename, err := getFilename(p.Title)
+	if err != nil {
+		return err
+	}
+
 	return ioutil.WriteFile(filename, []byte(p.Body), 0600)
 }
 
 // Load page
 func Load(title string) (*Page, error) {
-	body, err := ioutil.ReadFile(getFilename(title))
+	filename, err := getFilename(title)
 	if err != nil {
 		return nil, err
 	}
+
+	body, err := ioutil.ReadFile(filename)
+	if err != nil {
+		return nil, err
+	}
+
 	return &Page{Title: title, Body: string(body)}, nil
 }
 
@@ -57,19 +70,22 @@ func GetTitles() ([]string, error) {
 
 // Delete the page with the specified title
 func Delete(title string) error {
-	return os.Remove(getFilename(title))
+	filename, err := getFilename(title)
+	if err != nil {
+		return err
+	}
+
+	return os.Remove(filename)
 }
 
 // ValidateNewPage returns error if the filename is not valid or already exists
 func ValidateNewPage(title string) error {
-	filename := getFilename(title)
-
-	// Don't allow special chars
-	if strings.ContainsAny(title, "#?/\\*\"") {
-		return fmt.Errorf("Page name '%s' not allowed: Must not contain special characters", title)
+	filename, err := getFilename(title)
+	if err != nil {
+		return err
 	}
 
-	_, err := os.Stat(filename)
+	_, err = os.Stat(filename)
 
 	if os.IsNotExist(err) {
 		return nil

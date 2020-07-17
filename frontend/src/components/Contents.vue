@@ -1,17 +1,17 @@
 <template>
   <div>
-    <div id="title">
-      <div class="left">Contents [</div>
-      <div id="add-page" class="left button clickable" v-on:click="$router.push('/edit/New Page')">+</div>
-      ]
-    </div>
     <div v-if="loading">
       <b-spinner small variant="secondary"></b-spinner>
     </div>
     <div v-if="error" class="error">
       {{ error }}
     </div>
-    <div v-if="pages">
+    <div v-if="pages && !loading">
+      <div id="title">
+        <div class="left">Contents [</div>
+        <div id="add-page" class="left button clickable" v-on:click="$router.push('/edit/*')">+</div>
+        ]
+      </div>
       <div v-for="page in pages" :key="page">
         <div id="view-page" class="wiki-link clickable" v-on:click="$router.push('/view/' + page)">{{ page }}</div>
       </div>
@@ -42,8 +42,12 @@ export default {
         .then(response => {
           this.pages = response.data
         })
-        .catch(error => { this.error = error })
-        .finally(() => { this.loading = false })
+        .catch(error => {
+          this.error = error
+        })
+        .finally(() => {
+          this.loading = false
+        })
     }
   }
 }

@@ -28,10 +28,8 @@
   font-weight: bolder;
   color: #404090;
   text-decoration: none;
+  margin-top: 12px;
   margin-bottom: 12px;
-}
-#load {
-  margin-left: 20px;
 }
 .error {
   color: red;
@@ -43,7 +41,6 @@
   font-size: 14px;
   font-weight: bolder;
   color: #409040;
-  margin-bottom: 12px;
 }
 .button {
   padding: 0 1px 0 1px;
