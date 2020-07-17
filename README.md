@@ -20,8 +20,12 @@ cd backend
 go build -o go-vue-wiki.exe
 ```
 ### Notes:
-On Ubuntu you need to install Go by typing: apt install golang-go
+On Ubuntu you need to install Go by typing:
+```
+apt install golang-go
+```
 On Windows, download the binary from the GoLang website.
+
 Will build the .exe in the current folder.
 If you want the .exe in the go/bin folder (already on path), use *go install* instead of *go build*.
 
