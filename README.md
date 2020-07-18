@@ -1,12 +1,12 @@
 # Introduction
-I wanted to build an application that had a Vue.js front-end and a Go Lang back-end. This is the result and will be a useful blueprint for future projects.
+I wanted to build an application that had a Vue.js front-end and a Go Lang back-end. This is the result and will be a useful blueprint for my future projects.
 
-I'm extremely impressed by vue.js and Go. Both have done away with all the boilerplate code and make it incredibly easy to just concentrate on the code that matters. I found Visual Studio Code to be the perfect IDE and, with some auto build cleverness in place (see my Notes in How to Run the Server section) both the front and back end were rebuilding and redeploying within less than half a second of me making a change to any source file. This is especially useful when playing with fiddly CSS as you can see your results pretty instantly and adjust as necessary.
+I'm extremely impressed by vue.js and Go. Both have done away with all the boilerplate code and make it incredibly easy to just concentrate on the code that matters. I found Visual Studio Code to be the perfect IDE and, with some auto build cleverness in place (see my Notes in How to Run the Server section) both the front and back end were rebuilding and redeploying within less than half a second of me making changes to the source files. This is especially useful when playing with fiddly CSS as you can see your results pretty instantly and adjust as necessary.
 
 The choice of router for Vue was easy as there is an official one called Vue Router funnily enough. There are more choices for Go but I settled on Gorilla Mux as it seemed to be the most popular and fully featured one.
 
 The Go server serves up the app files (which are generated using npm) as well as exposing the endpoints needed by the app.
-For the auto building of the app I found it was much faster to let npm serve the app files and, as Go was running on port 8080 I had to use port 8081 for npm. This meant I needed enable CORS on the GO server so the app could still see the endpoints. I only enabled CORS for localhost as its only needed during development and it all seemed to work well.
+For the auto building of the app I found it was much faster to let npm serve the app files and, as Go was running on port 8080 I had to use port 8081 for npm. This meant I needed to enable CORS on the GO server so the app could still use the endpoints. I only enabled CORS for localhost as its only needed during development and it all seemed to work well.
 
 I also created a couple of scripts (one for windows and one for Linux) to build and package up the app and server into a neat distributable package.
 
